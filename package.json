@@ -1,0 +1,15 @@
+{
+    "name": "p1-c00203250",
+    "private": true,
+    "version": "0.0.1",
+    "description": "Project 1",
+    "dependencies": {
+        "chai": "~1.8.0",
+        "mocha": "2.0.1"
+    },
+    "scripts": {
+        "test": "mocha ./spec/p1-c00203250.js"
+    },
+    "author": "Rafael Plugge",
+    "license": "MIT"
+}
