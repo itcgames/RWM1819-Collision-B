@@ -1,5 +1,5 @@
 {
-    "name": "p1-c00203250",
+    "name": "rwm-collision-b",
     "private": true,
     "version": "0.1.0",
     "description": "Project 1",
@@ -8,7 +8,7 @@
         "mocha": "2.0.1"
     },
     "scripts": {
-        "test": "mocha ./spec/p1-c00203250.js"
+        "test": "mocha ./spec/spec.js"
     },
     "author": "Rafael Plugge",
     "license": "MIT"

@@ -1,4 +1,4 @@
-/*! p1-c00203250 v0.0.0 - MIT license */
+/*! rwm-collision-b v0.1.0 - MIT license */
 "use strict";
 
 const collisionManager = (function () {
