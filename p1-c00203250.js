@@ -101,13 +101,13 @@ const collisionManager = (function () {
       y: rightCircle.position.y - leftCircle.position.y
     };
 
-    const result = lengthSquared(distanceBetween) -
-        Math.pow(leftCircle.radius + rightCircle.radius, 2);
-    if (0 > result) {
+    if (Math.pow(leftCircle.radius + rightCircle.radius, 2) <= lengthSquared(distanceBetween)) {
       return { collision: false, manifest: {} };
     }
-
+    
     // collision occurred generate manifest
+    const result = length(distanceBetween) -
+        (leftCircle.radius + rightCircle.radius);
     const direction = unit(distanceBetween);
 
     return {

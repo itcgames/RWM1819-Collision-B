@@ -1,5 +1,5 @@
-var path = require("path");
-var chai = require("chai");
+const path = require("path");
+const chai = require("chai");
 
 const collisionManager = require(path.join(__dirname, "..", "./p1-c00203250.js"));
 
@@ -41,7 +41,10 @@ describe("collisionManager", function () {
     };
     const expectedResult = {
       collision: true,
-      manifest: { distance: { x: 1, y: 0 } }
+      manifest: {
+        leftCircleDistance: { x: -1, y: 0 },
+        rightCircleDistance: { x: 1, y: 0 }
+      }
     };
 
     // act
@@ -49,6 +52,19 @@ describe("collisionManager", function () {
 
     // assert
     chai.expect(result).to.be.a("object");
-    chai.expect(result).to.eql(expectedResult);
+    chai.expect(result.collision)
+        .to.be.a("boolean")
+        .to.equal(expectedResult.collision);
+    chai.expect(result.manifest).to.be.an("object");
+    chai.expect(result.manifest).to.have.property("leftCircleDistance");
+    chai.expect(result.manifest.leftCircleDistance).to.have.property("x",
+        expectedResult.manifest.leftCircleDistance.x);
+    chai.expect(result.manifest.leftCircleDistance).to.have.property("y",
+        expectedResult.manifest.leftCircleDistance.y);
+    chai.expect(result.manifest).to.have.property("rightCircleDistance");
+    chai.expect(result.manifest.rightCircleDistance).to.have.property("x",
+        expectedResult.manifest.rightCircleDistance.x);
+    chai.expect(result.manifest.rightCircleDistance).to.have.property("y",
+        expectedResult.manifest.rightCircleDistance.y);
   });
 });
