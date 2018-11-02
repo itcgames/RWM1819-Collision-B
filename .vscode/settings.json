@@ -1,0 +1,15 @@
+{
+  // Editor
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+
+  // Files
+  "files.encoding": "utf8",
+
+  // JavaScript
+  "javascript.format.placeOpenBraceOnNewLineForControlBlocks": false,
+  "javascript.format.placeOpenBraceOnNewLineForFunctions": false,
+  "javascript.referencesCodeLens.enabled": true,
+
+  
+}
