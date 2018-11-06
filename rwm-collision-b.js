@@ -26,6 +26,17 @@ const collisionManager = (function () {
   };
 
   /**
+   * Type check that the passed in parameter is a object and
+   * contains the necessary properties to be considered a aabb.
+   * @param {{ position: {x: number, y: number}, size: {x: number, y: number}}} aabb 
+   *  axis aligned bounding box represented by a position and a size
+   */
+  function isAABB(aabb) {
+    return typeof aabb === "object" && isVector(aabb.position) &&
+        typeof isVector(aabb.size);
+  };
+
+  /**
    * calculate the length of the vector squared,
    * used to avoid the lengthly operation of square rooting.
    * @param {{ x: number, y: number }} vector
@@ -119,9 +130,95 @@ const collisionManager = (function () {
     };
   };
 
+  /**
+   * @param {{ position: { x: number, y: number }, size: { x: number, y: number }}} leftAABB 
+   *  left Axis aligned bounding box.
+   * @param {{ position: { x: number, y: number }, size: { x: number, y: number }}} rightAABB 
+   *  right axis aligned bounding box.
+   * @returns {boolean} whether the left axis aligned bounding box is
+   *  overlapping with the right axis aligned bounding box
+   */
+  function boolAABBToAABB(leftAABB, rightAABB) {
+    if (!isAABB(leftAABB) || !isAABB(rightAABB)) {
+      throw "Exception in 'boolAABBToAABB' - Invalid parameter";
+    }
+
+    return true;
+  };
+
+  /**
+   * @param {{ position: { x: number, y: number }, size: { x: number, y: number }}} leftAABB 
+   *  left axis aligned bounding box.
+   * @param {{ position: { x: number, y: number }, size: { x: number, y: number }}} rightAABB 
+   *  right axis aligned bounding box.
+   * @returns {{ collision: boolean, manifest: { leftAABB: { distance: {x: number, y: number} }, rightAABB: { distance: {x: number, y: number} } }}}
+   *  object containing the property 'manifest' and 'collision',
+   *  the latter containing whether a collision occurred,
+   *  the first one containing the properties 'leftAABB' and
+   *  'rightAABB' each containing the property 'distance' containing the amount
+   *  you can add to the position of the corresponding AABB to push them away
+   *  from each other to no longer be colliding.
+   */
+  function maniAABBToAABB(leftAABB, rightAABB) {
+    if (!isAABB(leftAABB) || !isAABB(rightAABB)) {
+      throw "Exception in 'maniAABBToAABB' - Invalid parameter";
+    }
+    const lAABB = {
+      topLeft: {
+        x: leftAABB.position.x,
+        y: leftAABB.position.y
+      },
+      topRight: {
+        x: leftAABB.position.x + leftAABB.size.x,
+        y: leftAABB.position.y
+      },
+      botLeft: {
+        x: leftAABB.position.x,
+        y: leftAABB.position.y + leftAABB.size.y
+      },
+      botRight: {
+        x: leftAABB.position.x + leftAABB.size.x,
+        y: leftAABB.position.y + leftAABB.size.y
+      }
+    };
+
+    const rAABB = {
+      topLeft: {
+        x: rightAABB.position.x,
+        y: rightAABB.position.y
+      },
+      topRight: {
+        x: rightAABB.position.x + rightAABB.size.x,
+        y: rightAABB.position.y
+      },
+      botLeft: {
+        x: rightAABB.position.x,
+        y: rightAABB.position.y + rightAABB.size.y
+      },
+      botRight: {
+        x: rightAABB.position.x + rightAABB.size.x,
+        y: rightAABB.position.y + rightAABB.size.y
+      }
+    };
+    
+    return {
+      collision: true,
+      manifest: {
+        leftAABB: {
+          distance: { x: 0, y: 0 }
+        },
+        rightAABB: {
+          distance: { x: 0, y: 0 }
+        }
+      }
+    }
+  };
+
   return {
     boolCircleToCircle: boolCircleToCircle,
-    maniCircleToCircle: maniCircleToCircle
+    maniCircleToCircle: maniCircleToCircle,
+    boolAABBToAABB: boolAABBToAABB,
+    maniAABBToAABB: maniAABBToAABB
   };
 })();
 
