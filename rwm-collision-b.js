@@ -200,6 +200,21 @@ const collisionManager = (function () {
         y: rightAABB.position.y + rightAABB.size.y
       }
     };
+
+    /**
+     * Define our 4 separate axis.
+     * @type {Array<{ x: number, y: number }>}
+     */
+    const axes = [
+      { x: lAABB.topRight.x - lAABB.topLeft.x, y: lAABB.topRight.y - lAABB.topRight.y },
+      { x: lAABB.topRight.x - lAABB.botRight.x, y: lAABB.topRight.y - lAABB.botRight.y },
+      { x: rAABB.topLeft.x - rAABB.botLeft.x, y: rAABB.topLeft.y - rAABB.botLeft.y },
+      { x: rAABB.topLeft.x - rAABB.topRight.x, y: rAABB.topLeft.y - rAABB.topRight.y }
+    ];
+
+    axes.forEach(function (element, index, array) {
+      
+    });
     
     return {
       collision: true,
