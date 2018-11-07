@@ -84,7 +84,7 @@ const collisionManager = (function () {
    *  left circle.
    * @param {{ position: {x: number, y: number}, radius: number }} rightCircle
    *  right circle.
-   * @returns {{ collision: boolean, distance: {x: number, y: number} }}
+   * @returns {{ collision: boolean, manifest: { leftCircleDistance: {x: number, y: number}, rightCircleDistance: {x: number, y: number} } }}
    *  object containing the property 'manifest' and 'collision',
    *  the latter containing whether a collision occurred,
    *  the first one containing the property 'leftCircleDistance' and
