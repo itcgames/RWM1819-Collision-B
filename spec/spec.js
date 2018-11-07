@@ -152,4 +152,58 @@ describe("collisionManager", function () {
       chai.expect(functionToThrow).to.throw(expectedErrorMessage);
     });
   });
+
+  describe(".boolAABBToAABB", function () {
+    it("exists", function () {
+      chai.expect(collisionManager.boolAABBToAABB).to.be.a("function");
+    });
+
+    it("should return true when AABBs overlapping", function () {
+
+      // assemble
+      const aabb1 = {
+        position: { x: 10, y: 10 },
+        size: { x: 20, y: 20 }
+      };
+      const aabb2 = {
+        position: { x: 30, y: 10 },
+        size: { x: 20, y: 20 }
+      };
+      
+      // act
+      const result = collisionManager.boolAABBToAABB(aabb1, aabb2);
+      
+      // assert
+      chai.expect(result).to.be.a("boolean");
+      chai.expect(result).to.be.equal(true);
+    });
+
+    it("should return false when AABBs not overlapping", function () {
+
+      // assemble
+      const aabb1 = {};
+      const aabb2 = {};
+
+      // act
+      const result = collisionManager.boolAABBToAABB(aabb1, aabb2);
+
+      // assert
+      chai.expect(result).to.be.a("boolean");
+      chai.expect(result).to.equal(false);
+    });
+
+    it("should throw exception when no parameters are passed", function () {
+
+      // assemble
+      const expectedErrorMessage = "Exception in function 'boolAABBToAABB' - Invalid parameter";
+
+      // act
+      const functionToThrow = collisionManager.boolAABBToAABB.bind(collisionManager);
+
+      chai.expect(functionToThrow).to.throw(expectedErrorMessage);
+    });
+  });
+
+  describe(".maniAABBToAABB", function () {
+  });
 });
