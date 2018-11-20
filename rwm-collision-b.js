@@ -26,6 +26,17 @@ const collisionManager = (function () {
   };
 
   /**
+   * Type check that the passed in parameter is a object and
+   * contains the necessary properties to be considered a aabb.
+   * @param {Array<{ x: number, y: number }>} aabb 
+   *  axis aligned bounding box represented by four points
+   */
+  function isAABB(aabb) {
+    return typeof aabb === "object" && aabb.length === 4
+        && aabb.every(function (ele) { return isVector(ele); });
+  };
+
+  /**
    * calculate the length of the vector squared,
    * used to avoid the lengthly operation of square rooting.
    * @param {{ x: number, y: number }} vector
@@ -55,6 +66,65 @@ const collisionManager = (function () {
       return { x: 0, y: 0 };
     }
     return { x: vector.x / magnitude, y: vector.y / magnitude };
+  };
+
+  /**
+   * calculate dot project between 2 vectors via mathematical formula:
+   *  dot product = left.x * right.x + left.y * right.y
+   * @param {{ x: number, y: number}} left 
+   *  left side vector.
+   * @param {{ x: number, y: number }} right 
+   *  right side vector.
+   */
+  function dotProduct(left, right) {
+    return (left.x * right.x) + (left.y * right.y);
+  };
+
+  /**
+   * projects all the corners of the axis aligned bounding box onto the axis,
+   * returning the two outermost points of this projection.
+   * @param {{ x: number, y: number}} axis 
+   *  2 dimensional vector used as axis
+   * @param {Array<{ x: number, y: number }>} aabb 
+   *  The four corners of the axis aligned bounding box.
+   * @returns {{ min: number, max: number }}
+   *  the two outermost points
+   */
+  function projectOnto(axis, aabb) {
+    const result = { min: 0, max: 0 };
+
+    aabb.forEach(function (element, index) {
+      const projection = dotProduct(element, axis);
+      if (index === 0) {
+        result.min = projection;
+        result.max = projection;
+      } else {
+        if (projection < result.min) {
+          result.min = projection;
+        }
+        if (projection > result.max) {
+          result.max = projection;
+        }
+      }
+    });
+
+    return result;
+  };
+
+  /**
+   * Gets the smallest overlap between the two projections.
+   * @param {{ min: number, max: number }} leftProjection
+   *  
+   * @param {{ min: number, max: number }} rightProjection 
+   */
+  function getSmallestOverlap(leftProjection, rightProjection) {
+    const rMinTolMax = Math.abs(rightProjection.min - leftProjection.max);
+    const rMaxTolMin = Math.abs(rightProjection.max - leftProjection.min);
+    if (rMinTolMax < rMaxTolMin) {
+      return rMinTolMax;
+    } else {
+      return rMaxTolMin;
+    }
   };
 
 
@@ -119,9 +189,130 @@ const collisionManager = (function () {
     };
   };
 
+  /**
+   * @param {Array<{ x: number, y: number }>} leftAABB 
+   *  left Axis aligned bounding box.
+   * @param {Array<{ x: number, y: number }>} rightAABB 
+   *  right axis aligned bounding box.
+   * @returns {boolean} whether the left axis aligned bounding box is
+   *  overlapping with the right axis aligned bounding box
+   */
+  function boolAABBToAABB(leftAABB, rightAABB) {
+    if (!isAABB(leftAABB) || !isAABB(rightAABB)) {
+      throw "Exception in function 'boolAABBToAABB' - Invalid parameter";
+    }
+
+    /**
+     * Define our 4 separate axis
+     * @type {Array<{ x: number, y: number }>}
+     */
+    const axes = [
+      { x: leftAABB[1].x - leftAABB[0].x, y: leftAABB[1].y - leftAABB[1].y },
+      { x: leftAABB[1].x - leftAABB[2].x, y: leftAABB[1].y - leftAABB[2].y },
+      { x: rightAABB[0].x - rightAABB[3].x, y: rightAABB[0].y - rightAABB[3].y },
+      { x: rightAABB[0].x - rightAABB[1].x, y: rightAABB[0].y - rightAABB[1].y }
+    ];
+    axes.forEach(function (ele, index, array) {
+      array[index] = unit(ele);
+    });
+    
+    const result = axes.every(function (element) {
+      const leftProjection = projectOnto(element, leftAABB);
+      const rightProjection = projectOnto(element, rightAABB);
+
+      if (!((rightProjection.min <= leftProjection.max) && (rightProjection.max >= leftProjection.min))) {
+        return false; // terminates loop
+      }
+      return true; // continues loop
+    });
+
+    return result;
+  };
+
+  /**
+   * @param {Array<{ x: number, y: number }>} leftAABB 
+   *  left axis aligned bounding box.
+   * @param {Array<{ x: number, y: number }>} rightAABB 
+   *  right axis aligned bounding box.
+   * @returns {{ collision: boolean, manifest: { leftAABB: { distance: {x: number, y: number} }, rightAABB: { distance: {x: number, y: number} } }}}
+   *  object containing the property 'manifest' and 'collision',
+   *  the latter containing whether a collision occurred,
+   *  the first one containing the properties 'leftAABB' and
+   *  'rightAABB' each containing the property 'distance' containing the amount
+   *  you can add to the position of the corresponding AABB to push them away
+   *  from each other to no longer be colliding.
+   */
+  function maniAABBToAABB(leftAABB, rightAABB) {
+    if (!isAABB(leftAABB) || !isAABB(rightAABB)) {
+      throw "Exception in function 'maniAABBToAABB' - Invalid parameter";
+    }
+
+    /**
+     * Define our 4 separate axis.
+     * @type {Array<{ x: number, y: number }>}
+     */
+    const axes = [
+      { x: leftAABB[1].x - leftAABB[0].x, y: leftAABB[1].y - leftAABB[1].y },
+      { x: leftAABB[1].x - leftAABB[2].x, y: leftAABB[1].y - leftAABB[2].y },
+      { x: rightAABB[0].x - rightAABB[3].x, y: rightAABB[0].y - rightAABB[3].y },
+      { x: rightAABB[0].x - rightAABB[1].x, y: rightAABB[0].y - rightAABB[1].y }
+    ];
+    axes.forEach(function (ele, index, array) {
+      array[index] = unit(ele);
+    });
+
+    const mtv = {
+      overlap: Number.MAX_VALUE,
+      axis: { x: 0, y: 0 }
+    };
+    const collision = axes.every(function (element) {
+      const leftProjection = projectOnto(element, leftAABB);
+      const rightProjection = projectOnto(element, rightAABB);
+
+      if (!((rightProjection.min <= leftProjection.max) && (rightProjection.max >= leftProjection.min))) {
+        return false; // terminates loop
+      }
+      const overlap = getSmallestOverlap(leftProjection, rightProjection);
+      if (overlap < mtv.overlap) {
+        mtv.overlap = overlap;
+        mtv.axis = element;
+      }
+      
+      return true; // continues loop
+    });
+
+    if (!collision) {
+      return {
+        collision: collision,
+        manifest: {}
+      };
+    }
+    
+    const unitAxis = unit(mtv.axis);
+    return {
+      collision: collision,
+      manifest: {
+        leftAABB: {
+          distance: {
+            x: (-unitAxis.x) * mtv.overlap,
+            y: (-unitAxis.y) * mtv.overlap
+          }
+        },
+        rightAABB: {
+          distance: {
+            x: unitAxis.x * mtv.overlap,
+            y: unitAxis.y * mtv.overlap
+          }
+        }
+      }
+    }
+  };
+
   return {
     boolCircleToCircle: boolCircleToCircle,
-    maniCircleToCircle: maniCircleToCircle
+    maniCircleToCircle: maniCircleToCircle,
+    boolAABBToAABB: boolAABBToAABB,
+    maniAABBToAABB: maniAABBToAABB
   };
 })();
 
