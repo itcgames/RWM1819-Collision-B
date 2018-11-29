@@ -343,4 +343,190 @@ describe("collisionManager", function () {
       chai.expect(functionToThrow).to.throw(expectedErrorMessage);
     });
   });
+
+  describe(".boolCircleToAABB", function () {
+    it("exists", function () {
+      chai.expect(collisionManager.boolCircleToAABB).to.be.a("function");
+    });
+
+    it("should return true when circle and AABB are overlapping", function () {
+
+      // assemble
+      const circle = {
+        position: { x: 40, y: 20 },
+        radius: 20
+      };
+      const aabb = [
+        { x: 25, y: 10 },
+        { x: 50, y: 10 },
+        { x: 50, y: 30 },
+        { x: 25, y: 30 }
+      ];
+
+      // act
+      const result = collisionManager.boolCircleToAABB(circle, aabb);
+
+      // assert
+      chai.expect(result).to.be.a("boolean");
+      chai.expect(result).to.be.equal(true);
+    });
+
+    it("should return false when circle and AABB aren't overlapping", function () {
+
+      // assemble
+      const circle = {
+        position: { x: 100, y: 20 },
+        radius: 20
+      };
+      const aabb = [
+        { x: 25, y: 10 },
+        { x: 50, y: 10 },
+        { x: 50, y: 30 },
+        { x: 25, y: 30 }
+      ];
+
+      // act
+      const result = collisionManager.boolCircleToAABB(circle, aabb);
+
+      // assert
+      chai.expect(result).to.be.a("boolean");
+      chai.expect(result).to.equal(false);
+    });
+
+    it("should throw exception when incorrect parameters are passed", function () {
+      
+      // assemble
+      const circle = {};
+      const aabb = [{}];
+      const expectedErrorMessage = "Exception in function 'boolCircleToAABB' - Invalid parameter";
+
+      // act
+      const functionToThrow = collisionManager.boolCircleToAABB.bind(collisionManager, circle, aabb);
+
+      // assert
+      chai.expect(functionToThrow).to.throw(expectedErrorMessage);
+    });
+
+    it("should throw exception when no parameters are passed", function () {
+      
+      // assemble
+      const expectedErrorMessage = "Exception in function 'boolCircleToAABB' - Invalid parameter";
+
+      // act
+      const functionToThrow = collisionManager.boolCircleToAABB.bind(collisionManager);
+
+      // assert
+      chai.expect(functionToThrow).to.throw(expectedErrorMessage);
+    });
+  });
+
+  describe(".maniCircleToAABB", function () {
+    it("exists", function () {
+      chai.expect(collisionManager.maniCircleToAABB).to.be.a("function");
+    });
+
+    it("should return 'collision: true' and correct manifest when circle and AABB are overlapping", function () {
+      
+      // assemble
+      const circle = {
+        position: { x: 40, y: 20 },
+        radius: 20
+      };
+      const aabb = [
+        { x: 25, y: 10 },
+        { x: 50, y: 10 },
+        { x: 50, y: 30 },
+        { x: 25, y: 30 }
+      ];
+      const expectedResult = {
+        collision: true,
+        manifest: {
+          circle: {
+            distance: { x: -10, y: 0 }
+          },
+          aabb: {
+            distance: { x: 10, y: 0 }
+          }
+        }
+      };
+
+      // act
+      const result = collisionManager.maniCircleToAABB(circle, aabb);
+
+      // assert
+      chai.expect(result).to.be.a("object");
+      chai.expect(result.collision)
+        .to.be.a("boolean")
+        .to.equal(expectedResult.collision);
+      chai.expect(result.manifest).to.be.a("object");
+      chai.expect(result.manifest).to.have.property("circle");
+      chai.expect(result.manifest.circle).to.have.property("distance");
+      chai.expect(result.manifest.circle.distance).to.have.property("x",
+        expectedResult.manifest.circle.distance.x);
+      chai.expect(result.manifest.circle.distance).to.have.property("y",
+        expectedResult.manifest.circle.distance.y);
+      chai.expect(result.manifest).to.have.property("aabb");
+      chai.expect(result.manifest.aabb).to.have.property("distance");
+      chai.expect(result.manifest.aabb.distance).to.have.property("x",
+        expectedResult.manifest.aabb.distance.x);
+      chai.expect(result.manifest.aabb.distance).to.have.property("y",
+        expectedResult.manifest.aabb.distance.y);
+    });
+
+    it("should return 'collision: false' and empty manifest when circle and AABB aren't overlapping", function () {
+      
+      // assemble
+      const circle = {
+        position: { x: 100, y: 20 },
+        radius: 20
+      };
+      const aabb = [
+        { x: 25, y: 10 },
+        { x: 50, y: 10 },
+        { x: 50, y: 30 },
+        { x: 25, y: 30 }
+      ];
+      const expectedResult = {
+        collision: false,
+        manifest: {}
+      };
+
+      // act
+      const result = collisionManager.maniCircleToAABB(circle, aabb);
+
+      // assert
+      chai.expect(result).to.be.a("object");
+      chai.expect(result.collision)
+        .to.be.a("boolean")
+        .to.equal(expectedResult.collision);
+      chai.expect(result.manifest).to.be.a("object");
+      chai.expect(result.manifest).to.be.deep.equal(expectedResult.manifest);
+    });
+
+    it("should throw exception when incorrect parameters are passed", function () {
+
+      // assemble
+      const circle = {};
+      const aabb = [{}];
+      const expectedErrorMessage = "Exception in function 'maniCircleToAABB' - Invalid parameter";
+
+      // act
+      const functionToThrow = collisionManager.maniCircleToAABB.bind(collisionManager, circle, aabb);
+
+      // assert
+      chai.expect(functionToThrow).to.throw(expectedErrorMessage);
+    });
+
+    it("should throw exception when no parameters are passed", function () {
+      
+      // assemble
+      const expectedErrorMessage = "Exception in function 'maniCircleToAABB' - Invalid parameter";
+
+      // act
+      const functionToThrow = collisionManager.maniCircleToAABB.bind(collisionManager);
+
+      // assert
+      chai.expect(functionToThrow).to.throw(expectedErrorMessage);
+    });
+  });
 });
