@@ -424,5 +424,5 @@ const collisionManager = (function () {
 })();
 
 if (typeof module !== "undefined") {
-  module.exports.collisionManager = collisionManager;
+  module.exports = collisionManager;
 }
