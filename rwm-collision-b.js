@@ -336,7 +336,7 @@ const collisionManager = (function () {
 
     const result = axes.every(function (element) {
       const aabbProjection = projectOnto(element, aabb);
-      const circleProjection = dotProduct(element, circle.position)
+      const circleProjection = dotProduct(element, circle.position);
 
       // if false it terminates the loop, if true the loop continues.
       if (!((circleProjection <= aabbProjection.max) && (circleProjection >= aabbProjection.min))) {
@@ -348,11 +348,20 @@ const collisionManager = (function () {
     return result;
   };
 
+  /**
+   * @param {{ position: {x: number, y: number }, radius: number }} circle 
+   *  circle
+   * @param {Array<{ x: number, y: number }>} aabb 
+   *  axis aligned bounding box
+   * @returns {boolean} whether the circle is overlapping
+   *  with the axis aligned bounding box.
+   */
   function maniCircleToAABB(circle, aabb) {
     if (!isCircle(circle) || !isAABB(aabb)) {
       throw "Exception in function 'maniCircleToAABB' - Invalid parameter";
     }
 
+    const aabbCenter = { x: aabb[2].x - aabb[0].x, y: aabb[2].y - aabb[0].y };
     /**
      * Define our separate axis
      * @type {Array<{ x: number, y: number}>}
@@ -360,7 +369,7 @@ const collisionManager = (function () {
     const axes = [
       { x: aabb[1].x - aabb[0].x, y: aabb[1].y - aabb[1].y },
       { x: aabb[1].x - aabb[2].x, y: aabb[1].y - aabb[2].y },
-      { x: circle.position.x, y: circle.position.y }
+      { x: circle.position.x - aabbCenter.x, y: circle.position.y - aabbCenter.y }
     ];
     axes.forEach(function (ele, index, array) {
       array[index] = unit(ele);
@@ -399,14 +408,14 @@ const collisionManager = (function () {
       manifest: {
         circle: {
           distance: {
-            x: (-mtv.axis.x) * mtv.overlap,
-            y: (-mtv.axis.y) * mtv.overlap
+            x: mtv.axis.x * mtv.overlap,
+            y: mtv.axis.y * mtv.overlap
           }
         },
         aabb: {
           distance: {
-            x: mtv.axis.x * mtv.overlap,
-            y: mtv.axis.y * mtv.overlap
+            x: -(mtv.axis.x) * mtv.overlap,
+            y: -(mtv.axis.y) * mtv.overlap
           }
         }
       }
