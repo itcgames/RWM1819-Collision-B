@@ -352,6 +352,7 @@ const collisionManager = (function () {
       throw "Exception in function 'boolCircleToAABB' - Invalid parameter";
     }
 
+    const aabbCenter = { x: aabb[2].x - aabb[0].x, y: aabb[2].y - aabb[0].y };
     /**
      * Define our separate axis
      * @type {Array<{ x: number, y: number }>}
@@ -359,7 +360,7 @@ const collisionManager = (function () {
     const axes = [
       { x: aabb[1].x - aabb[0].x, y: aabb[1].y - aabb[1].y },
       { x: aabb[1].x - aabb[2].x, y: aabb[1].y - aabb[2].y },
-      { x: circle.position.x, y: circle.position.y }
+      { x: aabbCenter.x - circle.position.x, y: aabbCenter.y - circle.position.y }
     ];
     axes.forEach(function (ele, index, array) {
       array[index] = unit(ele);
