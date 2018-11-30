@@ -90,10 +90,41 @@ const collisionManager = (function () {
    * @returns {{ min: number, max: number }}
    *  the two outermost points
    */
-  function projectOnto(axis, aabb) {
+  function projectAABBOnto(axis, aabb) {
     const result = { min: 0, max: 0 };
 
     aabb.forEach(function (element, index) {
+      const projection = dotProduct(element, axis);
+      if (index === 0) {
+        result.min = projection;
+        result.max = projection;
+      } else {
+        if (projection < result.min) {
+          result.min = projection;
+        }
+        if (projection > result.max) {
+          result.max = projection;
+        }
+      }
+    });
+
+    return result;
+  };
+
+  /**
+   * @param {{ x: number, y: number }} axis 
+   *  2 dimensional vector as axis.
+   * @param {{ position: {x: number, y: number}, radius: number }} circle 
+   * @returns {{ min: number, max: number }}
+   *  the two outermost points
+   */
+  function projectCircleOnto(axis, circle) {
+    const result = { min: 0, max: 0 };
+
+    [
+      { x: circle.position.x - circle.radius, y: circle.position.y - circle.radius },
+      { x: circle.position.x + circle.radius, y: circle.position.y + circle.radius }
+    ].forEach(function (element, index) {
       const projection = dotProduct(element, axis);
       if (index === 0) {
         result.min = projection;
@@ -217,8 +248,8 @@ const collisionManager = (function () {
     });
     
     const result = axes.every(function (element) {
-      const leftProjection = projectOnto(element, leftAABB);
-      const rightProjection = projectOnto(element, rightAABB);
+      const leftProjection = projectAABBOnto(element, leftAABB);
+      const rightProjection = projectAABBOnto(element, rightAABB);
 
       if (!((rightProjection.min <= leftProjection.max) && (rightProjection.max >= leftProjection.min))) {
         return false; // terminates loop
@@ -266,8 +297,8 @@ const collisionManager = (function () {
       axis: { x: 0, y: 0 }
     };
     const collision = axes.every(function (element) {
-      const leftProjection = projectOnto(element, leftAABB);
-      const rightProjection = projectOnto(element, rightAABB);
+      const leftProjection = projectAABBOnto(element, leftAABB);
+      const rightProjection = projectAABBOnto(element, rightAABB);
 
       if (!((rightProjection.min <= leftProjection.max) && (rightProjection.max >= leftProjection.min))) {
         return false; // terminates loop
@@ -335,11 +366,11 @@ const collisionManager = (function () {
     });
 
     const result = axes.every(function (element) {
-      const aabbProjection = projectOnto(element, aabb);
-      const circleProjection = dotProduct(element, circle.position);
+      const aabbProjection = projectAABBOnto(element, aabb);
+      const circleProjection = projectCircleOnto(element, circle.position);
 
       // if false it terminates the loop, if true the loop continues.
-      if (!((circleProjection <= aabbProjection.max) && (circleProjection >= aabbProjection.min))) {
+      if (!((circleProjection.min <= aabbProjection.max) && (circleProjection.min >= aabbProjection.min))) {
         return false;
       }
       return true;
@@ -369,7 +400,7 @@ const collisionManager = (function () {
     const axes = [
       { x: aabb[1].x - aabb[0].x, y: aabb[1].y - aabb[1].y },
       { x: aabb[1].x - aabb[2].x, y: aabb[1].y - aabb[2].y },
-      { x: circle.position.x - aabbCenter.x, y: circle.position.y - aabbCenter.y }
+      { x: aabbCenter.x - circle.position.x, y: aabbCenter.y - circle.position.y }
     ];
     axes.forEach(function (ele, index, array) {
       array[index] = unit(ele);
@@ -380,14 +411,14 @@ const collisionManager = (function () {
       axis: { x: 0, y: 0 }
     };
     const collision = axes.every(function (element) {
-      const aabbProjection = projectOnto(element, aabb);
-      const circleProjection = dotProduct(element, circle.position);
+      const aabbProjection = projectAABBOnto(element, aabb);
+      const circleProjection = projectCircleOnto(element, circle);
 
       // if false it terminates the loop, if true the loop continues.
-      if (!((circleProjection <= aabbProjection.max) && (circleProjection >= aabbProjection.min))) {
+      if (!((circleProjection.min <= aabbProjection.max) && (circleProjection.max >= aabbProjection.min))) {
         return false; // terminates loop
       }
-      const overlap = getSmallestOverlap(aabbProjection, { min: circleProjection, max: circleProjection });
+      const overlap = getSmallestOverlap(aabbProjection, circleProjection);
       if (overlap < mtv.overlap) {
         mtv.overlap = overlap;
         mtv.axis = element;
@@ -408,7 +439,7 @@ const collisionManager = (function () {
       manifest: {
         circle: {
           distance: {
-            x: mtv.axis.x * mtv.overlap,
+            x: -(mtv.axis.x) * mtv.overlap,
             y: mtv.axis.y * mtv.overlap
           }
         },
