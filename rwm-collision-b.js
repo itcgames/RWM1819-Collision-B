@@ -367,7 +367,7 @@ const collisionManager = (function () {
 
     const result = axes.every(function (element) {
       const aabbProjection = projectAABBOnto(element, aabb);
-      const circleProjection = projectCircleOnto(element, circle.position);
+      const circleProjection = projectCircleOnto(element, circle);
 
       // if false it terminates the loop, if true the loop continues.
       if (!((circleProjection.min <= aabbProjection.max) && (circleProjection.min >= aabbProjection.min))) {
