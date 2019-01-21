@@ -1,6 +1,10 @@
 /*! rwm-collision-b v0.1.0 - MIT license */
 "use strict";
 
+/**
+ * Collision manager object available in the global scope.
+ * @type {{ boolCircleToCircle: (left: { position: {x: number, y: number}, radius: number }, right: { position: {x: number, y: number}, radius: number }) => boolean, maniCircleToCircle: (left: { position: {x: number, y: number}, radius: number }, right: { position: {x: number, y: number}, radius: number }) => { collision: boolean, manifest: { leftCircleDistance: {x: number, y: number}, rightCircleDistance: {x: number, y: number} } }, boolAABBToAABB: (left: Array<{ x: number, y: number }>, right: Array<{ x: number, y: number }>) => boolean, maniAABBToAABB: (left: Array<{ x: number, y: number }>, right: Array<{ x: number, y: number }>) => { collision: boolean, manifest: { leftAABB: { distance: {x: number, y: number} }, rightAABB: { distance: {x: number, y: number} } }}, boolCircleToAABB: (circle: { position: {x: number, y: number }, radius: number }, aabb: Array<{ x: number, y: number }>) => boolean, maniCircleToAABB: (circle: { position: {x: number, y: number }, radius: number }, aabb: Array<{ x: number, y: number }>) => { collision: boolean, manifest: { circle: { distance: { x: number, y: number }}, aabb: { distance: { x: number, y: number }}} } }}
+ */
 const collisionManager = (function () {
 
   /**
@@ -385,7 +389,7 @@ const collisionManager = (function () {
    *  circle
    * @param {Array<{ x: number, y: number }>} aabb 
    *  axis aligned bounding box
-   * @returns {boolean} whether the circle is overlapping
+   * @returns {{ collision: boolean, manifest: { circle: { distance: { x: number, y: number }}, aabb: { distance: { x: number, y: number }}} }} whether the circle is overlapping
    *  with the axis aligned bounding box.
    */
   function maniCircleToAABB(circle, aabb) {
