@@ -329,14 +329,14 @@ const collisionManager = (function () {
       manifest: {
         leftAABB: {
           distance: {
-            x: (-unitAxis.x) * mtv.overlap,
-            y: (-unitAxis.y) * mtv.overlap
+            x: unitAxis.x * mtv.overlap,
+            y: unitAxis.y * mtv.overlap
           }
         },
         rightAABB: {
           distance: {
-            x: unitAxis.x * mtv.overlap,
-            y: unitAxis.y * mtv.overlap
+            x: unitAxis.x * -mtv.overlap,
+            y: unitAxis.y * -mtv.overlap
           }
         }
       }
