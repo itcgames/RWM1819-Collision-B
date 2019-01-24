@@ -304,7 +304,7 @@ const collisionManager = (function () {
       const leftProjection = projectAABBOnto(element, leftAABB);
       const rightProjection = projectAABBOnto(element, rightAABB);
 
-      if (!((rightProjection.min <= leftProjection.max) && (rightProjection.max >= leftProjection.min))) {
+      if (!((rightProjection.min < leftProjection.max) && (rightProjection.max > leftProjection.min))) {
         return false; // terminates loop
       }
       const overlap = getSmallestOverlap(leftProjection, rightProjection);
@@ -330,13 +330,13 @@ const collisionManager = (function () {
         leftAABB: {
           distance: {
             x: unitAxis.x * mtv.overlap,
-            y: unitAxis.y * -mtv.overlap
+            y: unitAxis.y * mtv.overlap
           }
         },
         rightAABB: {
           distance: {
             x: unitAxis.x * -mtv.overlap,
-            y: unitAxis.y * mtv.overlap
+            y: unitAxis.y * -mtv.overlap
           }
         }
       }
