@@ -330,13 +330,13 @@ const collisionManager = (function () {
         leftAABB: {
           distance: {
             x: unitAxis.x * mtv.overlap,
-            y: unitAxis.y * mtv.overlap
+            y: unitAxis.y * -mtv.overlap
           }
         },
         rightAABB: {
           distance: {
             x: unitAxis.x * -mtv.overlap,
-            y: unitAxis.y * -mtv.overlap
+            y: unitAxis.y * mtv.overlap
           }
         }
       }
@@ -444,14 +444,14 @@ const collisionManager = (function () {
       manifest: {
         circle: {
           distance: {
-            x: -(mtv.axis.x) * mtv.overlap,
-            y: mtv.axis.y * mtv.overlap
+            x: mtv.axis.x * mtv.overlap,
+            y: mtv.axis.y * -mtv.overlap
           }
         },
         aabb: {
           distance: {
-            x: -(mtv.axis.x) * mtv.overlap,
-            y: -(mtv.axis.y) * mtv.overlap
+            x: mtv.axis.x * -mtv.overlap,
+            y: mtv.axis.y * mtv.overlap
           }
         }
       }
