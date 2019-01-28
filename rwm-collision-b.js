@@ -37,7 +37,19 @@ const collisionManager = (function () {
    */
   function isAABB(aabb) {
     return typeof aabb === "object" && aabb.length === 4
-        && aabb.every(function (ele) { return isVector(ele); });
+      && aabb.every(function (ele) { return isVector(ele); });
+  };
+
+  /**
+   * Type check that the passed in parameter is a object and
+   * contains the necessary properties to be considered a capsule.
+   * @param {{points: Array<{ x: number, y: number }>, radius: number}} capsule 
+   *  capsule that is represented by one radius with two points.
+   */
+  function isCapsule(capsule) {
+    return typeof capsule === "object" && typeof capsule.radius === "number"
+      && capsule.points !== "undefined" && capsule.points.length === 2
+      && capsule.points.every(function (p) { return isVector(p); });
   };
 
   /**
@@ -162,6 +174,38 @@ const collisionManager = (function () {
     }
   };
 
+  /**
+   * @param {{ x: number, y: number }} point 
+   *  point in space
+   * @param {{ start: { x: number, y: number }, end: { x: number, y: number }}} line 
+   *  line segment
+   */
+  function getMinimumDistanceBetween(point, line) {
+    const lineSection = {
+      x: line.end.x - line.start.x,
+      y: line.end.y - line.start.y
+    };
+    const magnitudeSquared = lengthSquared(lineSection);
+    if (magnitudeSquared === 0) {
+      const betweenPointAndStart = {
+        x: point.x - line.start.x,
+        y: point.y - line.start.y
+      };
+      return length(betweenPointAndStart);
+    } else {
+      const pointMinusStart = { x: point.x - line.start.x, y: point.y - line.start.y };
+      const endMinusStart = { x: line.end.x - line.start.x, y: line.end.y - line.start.y };
+      const t = Math.max(0, Math.min(1, dotProduct(pointMinusStart, endMinusStart) / magnitudeSquared))
+      const projection = {
+        x: line.start.x + t * (line.end.x - line.start.x),
+        y: line.start.y + t * (line.end.y - line.start.y)
+      };
+      return length({
+        x: point.x - projection.x,
+        y: point.y - projection.y
+      });
+    }
+  }
 
   /**
    * @param {{ position: {x: number, y: number}, radius: number }} leftCircle
@@ -209,10 +253,10 @@ const collisionManager = (function () {
     if (Math.pow(leftCircle.radius + rightCircle.radius, 2) <= lengthSquared(distanceBetween)) {
       return { collision: false, manifest: {} };
     }
-    
+
     // collision occurred generate manifest
     const result = length(distanceBetween) -
-        (leftCircle.radius + rightCircle.radius);
+      (leftCircle.radius + rightCircle.radius);
     const direction = unit(distanceBetween);
 
     return {
@@ -250,7 +294,7 @@ const collisionManager = (function () {
     axes.forEach(function (ele, index, array) {
       array[index] = unit(ele);
     });
-    
+
     const result = axes.every(function (element) {
       const leftProjection = projectAABBOnto(element, leftAABB);
       const rightProjection = projectAABBOnto(element, rightAABB);
@@ -312,7 +356,7 @@ const collisionManager = (function () {
         mtv.overlap = overlap;
         mtv.axis = element;
       }
-      
+
       return true; // continues loop
     });
 
@@ -322,7 +366,7 @@ const collisionManager = (function () {
         manifest: {}
       };
     }
-    
+
     const unitAxis = unit(mtv.axis);
     return {
       collision: collision,
@@ -375,7 +419,7 @@ const collisionManager = (function () {
       const circleProjection = projectCircleOnto(element, circle);
 
       // if false it terminates the loop, if true the loop continues.
-      if (!((circleProjection.min <= aabbProjection.max) && (circleProjection.min >= aabbProjection.min))) {
+      if (!((circleProjection.min <= aabbProjection.max) && (circleProjection.max >= aabbProjection.min))) {
         return false;
       }
       return true;
@@ -458,12 +502,49 @@ const collisionManager = (function () {
     };
   };
 
+  /**
+   * @param {{ points: Array<{ x: number, y: number }>, radius: number }} left 
+   *  capsule that is represented by one radius with two points.
+   * @param {{ points: Array<{ x: number, y: number }>, radius: number }} right 
+   *  capsule that is represented by one radius with two points.
+   * @returns {boolean} whether any of the capsules are overlapping.
+   */
+  function boolCapsuleToCapsule(left, right) {
+    if (!isCapsule(left) || !isCapsule(right)) {
+      throw "Exception in function 'boolCapsuleToCapsule' - Invalid parameter";
+    }
+
+    const magnitude = left.radius + right.radius;
+    const rightLine = { start: right.points[0], end: right.points[1] };
+    const leftLine = { start: left.points[0], end: left.points[1] };
+    const result = !left.points.every(function (p) {
+      const distance = getMinimumDistanceBetween(p, rightLine);
+      return magnitude < distance;
+    }) || !right.points.every(function (p) {
+      const distance = getMinimumDistanceBetween(p, leftLine);
+      return magnitude < distance;
+    });
+    return result;
+  };
+
+  /**
+   * @param {{ points: Array<{ x: number, y: number }>, radius: number }} capsule 
+   *  capsule that is represented by one radius with two points.
+   * @param {{ position: { x: number, y: number }, radius: number }} circle 
+   *  circle represented by one radius and a position.
+   * @returns {boolean} whether the capsule is overlapping with the circle.
+   */
+  function boolCapsuleToCircle(capsule, circle) {
+  };
+
   return {
     boolCircleToCircle: boolCircleToCircle,
-    maniCircleToCircle: maniCircleToCircle,
     boolAABBToAABB: boolAABBToAABB,
-    maniAABBToAABB: maniAABBToAABB,
     boolCircleToAABB: boolCircleToAABB,
+    boolCapsuleToCapsule: boolCapsuleToCapsule,
+    boolCapsuleToCircle: boolCapsuleToCircle,
+    maniCircleToCircle: maniCircleToCircle,
+    maniAABBToAABB: maniAABBToAABB,
     maniCircleToAABB: maniCircleToAABB
   };
 })();
