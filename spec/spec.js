@@ -255,10 +255,10 @@ describe("collisionManager", function () {
         collision: true,
         manifest: {
           leftAABB: {
-            distance: { x: -40, y: 0 }
+            distance: { x: 40, y: 0 }
           },
           rightAABB: {
-            distance: { x: 40, y: 0 }
+            distance: { x: -40, y: 0 }
           }
         }
       };
@@ -353,8 +353,8 @@ describe("collisionManager", function () {
 
       // assemble
       const circle = {
-        position: { x: 40, y: 20 },
-        radius: 20
+        position: { x: 40, y: 30 },
+        radius: 40
       };
       const aabb = [
         { x: 25, y: 10 },
@@ -442,10 +442,10 @@ describe("collisionManager", function () {
         collision: true,
         manifest: {
           circle: {
-            distance: { x: -10, y: 0 }
+            distance: { x: 30, y: 0 }
           },
           aabb: {
-            distance: { x: 10, y: 0 }
+            distance: { x: -30, y: 0 }
           }
         }
       };
@@ -529,4 +529,168 @@ describe("collisionManager", function () {
       chai.expect(functionToThrow).to.throw(expectedErrorMessage);
     });
   });
+
+  describe(".boolCapsuleToCapsule", function () {
+      it("exists", function () {
+          chai.expect(collisionManager.boolCapsuleToCapsule).to.be.a("function");
+      });
+
+      it("should return true when capsules overlapping", function () {
+
+        // assemble
+        const capsule1 = {
+          points: [
+            { x: 2, y: -2 },
+            { x: 2, y: 2 }
+          ],
+          radius: 3
+        };
+        const capsule2 = {
+          points: [
+            { x: 4, y: -2 },
+            { x: 4, y: 2 }
+          ],
+          radius: 2
+        };
+
+        // act
+        const result = collisionManager.boolCapsuleToCapsule(capsule1, capsule2);
+
+        // assert
+        chai.expect(result).to.be.a("boolean");
+        chai.expect(result).to.equal(true);
+      });
+
+      it("should return false when capsules are not overlapping", function () {
+
+        // assemble
+        const capsule1 = {
+          points: [
+            { x: 5, y: -2 },
+            { x: 5, y: 2 }
+          ],
+          radius: 2
+        };
+        const capsule2 = {
+          points: [
+            { x: 0, y: -2 },
+            { x: 0, y: 2 }
+          ],
+          radius: 2
+        };
+
+        // act
+        const result = collisionManager.boolCapsuleToCapsule(capsule1, capsule2);
+
+        // assert
+        chai.expect(result).to.be.a("boolean");
+        chai.expect(result).to.equal(false);
+      });
+
+      it("should throw exception when incorrect parameters are passed", function () {
+
+        // assemble
+        const capsule1 = {};
+        const capsule2 = {};
+        const expectedErrorMessage = "Exception in function 'boolCapsuleToCapsule' - Invalid parameter";
+
+        // act
+        const functionToThrow = collisionManager.boolCapsuleToCapsule.bind(collisionManager, capsule1, capsule2);
+
+        // assert
+        chai.expect(functionToThrow).to.throw(expectedErrorMessage);
+      });
+
+      it("should throw exception when no parameters are passed", function () {
+
+        // assemble
+        const expectedErrorMessage = "Exception in function 'boolCapsuleToCapsule' - Invalid parameter";
+
+        // act
+        const functionToThrow = collisionManager.boolCapsuleToCapsule.bind(collisionManager);
+
+        // assert
+        chai.expect(functionToThrow).to.throw(expectedErrorMessage);
+      });
+  });
+
+  /*
+  describe(".boolCapsuleToCircle", function () {
+    it("exists", function () {
+      chai.expect(collisionManager.boolCapsuleToCircle).to.be.a("function");
+    });
+
+    it("should return true when capsule and circle are overlapping", function () {
+
+      // assemble
+      const capsule = {
+        points: [
+          { x: 2, y: -2 },
+          { x: 2, y: 2 }
+        ],
+        radius: 5
+      };
+      const circle = {
+        position: { x: 5, y: 2 },
+        radius: 5
+      };
+
+      // act
+      const result = collisionManager.boolCapsuleToCircle(capsule, circle);
+
+      // assert
+      chai.expect(result).to.be.a("boolean");
+      chai.expect(result).to.equal(true);
+    });
+
+    it("should return false when capsule and circle are not overlapping", function () {
+
+      // assemble
+      const capsule = {
+        points: [
+          { x: 2, y: -2 },
+          { x: 2, y: 2 }
+        ],
+        radius: 5
+      };
+      const circle = {
+        position: { x: 10, y: 2 },
+        radius: 2
+      };
+
+      // act
+      const result = collisionManager.boolCapsuleToCircle(capsule, circle);
+
+      // assert
+      chai.expect(result).to.be.a("boolean");
+      chai.expect(result).to.equal(false);
+    });
+
+    it("should throw exception when incorrect parameters are passed", function () {
+
+      // assemble
+      const capsule = {};
+      const circle = {};
+      const expectedErrorMessage = "Exception in function 'boolCapsuleToCircle' - Invalid parameter";
+
+      // act
+      const functionToThrow = collisionManager.boolCapsuleToCircle.bind(collisionManager, capsule, circle);
+
+      // assert
+      chai.expect(functionToThrow).to.throw(expectedErrorMessage);
+    });
+
+    it("should throw exception when no parameters are passed", function () {
+
+      // assemble
+      const expectedErrorMessage = "Exception in function 'boolCapsuleToCircle' - Invalid parameter";
+
+      // act
+      const functionToThrow = collisionManager.boolCapsuleToCircle.bind(collisionManager);
+
+      // assert
+      chai.expect(functionToThrow).to.throw(expectedErrorMessage);
+    });
+  });
+  /**/
 });
