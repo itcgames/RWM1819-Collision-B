@@ -8,13 +8,9 @@
     ],
     fill: "red"
   };
-  const greenAABB = {
-    points: [
-      { x: 90, y: 40 },
-      { x: 140, y: 45 },
-      { x: 140, y: 95 },
-      { x: 90, y: 90 }
-    ],
+  const greenCircle = {
+    position: { x: 140, y: 80},
+    radius: 20,
     fill: "green"
   };
   const blueAABB = {
@@ -44,6 +40,17 @@
     context.fillStyle = aabb.fill;
     context.fill();
   };
+  /**
+   * 
+   * @param {CanvasRenderingContext2D} context 
+   * @param {{ position: {x: number, y: number }, radius: number }} circle 
+   */
+  function drawCircle(context, circle) {
+    context.beginPath();
+    context.arc(circle.position.x, circle.position.y, circle.radius, 0, 2 * Math.PI, false);
+    context.fillStyle = circle.fill;
+    context.fill();
+  };
 
   const textBool = [
     document.getElementById("booleanCC1"),
@@ -60,42 +67,42 @@
   context2d.fillStyle = "rgba(0,0,0,255)";
   context2d.clearRect(0, 0, canvas1.width, canvas1.height);
   drawAABB(context2d, redAABB);
-  drawAABB(context2d, greenAABB);
+  drawCircle(context2d, greenCircle);
   drawAABB(context2d, blueAABB);
 
-  textBool[0].innerText = "Red AABB to Green AABB: " + collisionManager.boolAABBToAABB(redAABB.points, greenAABB.points);
-  textBool[1].innerText = "Green AABB to Blue AABB: " + collisionManager.boolAABBToAABB(greenAABB.points, blueAABB.points);
+  textBool[0].innerText = "Red AABB to Green Circle: " + collisionManager.boolCircleToAABB(greenCircle, redAABB.points);
+  textBool[1].innerText = "Green Circle to Blue AABB: " + collisionManager.boolCircleToAABB(greenCircle, blueAABB.points);
 
   /**
    * @type {Array<{ collision: boolean, manifest: { leftAABB: { distance: {x: number, y: number} }, rightAABB: { distance: {x: number, y: number} } }}>}
    */
   const manifest = [
-    collisionManager.maniAABBToAABB(redAABB.points, greenAABB.points),
-    collisionManager.maniAABBToAABB(greenAABB.points, blueAABB.points)
+    collisionManager.maniCircleToAABB(greenCircle, redAABB.points),
+    collisionManager.maniCircleToAABB(greenCircle, blueAABB.points)
   ];
   textMani[0].innerHTML = "Red AABB to Green:  {<br/>&nbsp;&nbsp;&nbsp; \"collision\": " + manifest[0].collision + ",<br/>" +
       "&nbsp;&nbsp;&nbsp; \"manifest\": {<br/>" +
-      "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; \"leftAABB\": {<br/>" +
-      "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; \"distance\": { \"x\": " + manifest[0].manifest.leftAABB.distance.x + ", \"y\": " + manifest[0].manifest.leftAABB.distance.y + " },<br/>" +
+      "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; \"circle\": {<br/>" +
+      "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; \"distance\": { \"x\": " + manifest[0].manifest.circle.distance.x + ", \"y\": " + manifest[0].manifest.circle.distance.y + " },<br/>" +
       "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; },<br/>" +
-      "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; \"rightAABB\": {<br/>" +
-      "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; \"distance\": { \"x\": " + manifest[0].manifest.rightAABB.distance.x + ", \"y\": " + manifest[0].manifest.rightAABB.distance.y + " }<br/>" +
+      "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; \"aabb\": {<br/>" +
+      "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; \"distance\": { \"x\": " + manifest[0].manifest.aabb.distance.x + ", \"y\": " + manifest[0].manifest.aabb.distance.y + " }<br/>" +
       "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br/>" +
       "&nbsp;&nbsp;&nbsp; }<br/>" +
       "};";
-  textMani[1].innerHTML = "Green AABB to Blue AABB:<br/>  " + JSON.stringify(manifest[1], undefined, "&nbsp;");
+  textMani[1].innerHTML = "Green Circle to Blue AABB:<br/>  " + JSON.stringify(manifest[1], undefined, "&nbsp;");
 
   const after = {
     redAABB: {
       points: [
-        { x: redAABB.points[0].x - manifest[0].manifest.leftAABB.distance.x, y: redAABB.points[0].y - manifest[0].manifest.leftAABB.distance.y },
-        { x: redAABB.points[1].x - manifest[0].manifest.leftAABB.distance.x, y: redAABB.points[1].y - manifest[0].manifest.leftAABB.distance.y },
-        { x: redAABB.points[2].x - manifest[0].manifest.leftAABB.distance.x, y: redAABB.points[2].y - manifest[0].manifest.leftAABB.distance.y },
-        { x: redAABB.points[3].x - manifest[0].manifest.leftAABB.distance.x, y: redAABB.points[3].y - manifest[0].manifest.leftAABB.distance.y }
+        { x: redAABB.points[0].x + manifest[0].manifest.aabb.distance.x, y: redAABB.points[0].y + manifest[0].manifest.aabb.distance.y },
+        { x: redAABB.points[1].x + manifest[0].manifest.aabb.distance.x, y: redAABB.points[1].y + manifest[0].manifest.aabb.distance.y },
+        { x: redAABB.points[2].x + manifest[0].manifest.aabb.distance.x, y: redAABB.points[2].y + manifest[0].manifest.aabb.distance.y },
+        { x: redAABB.points[3].x + manifest[0].manifest.aabb.distance.x, y: redAABB.points[3].y + manifest[0].manifest.aabb.distance.y }
       ],
       fill: redAABB.fill
     },
-    greenAABB: greenAABB,
+    greenCircle: greenCircle,
     blueAABB: blueAABB
   };
 
@@ -105,6 +112,6 @@
   context.clearRect(0, 0, canvas2.width, canvas2.height);
 
   drawAABB(context, after.redAABB);
-  drawAABB(context, after.greenAABB);
+  drawCircle(context, after.greenCircle);
   drawAABB(context, after.blueAABB);
 })();
