@@ -614,7 +614,6 @@ describe("collisionManager", function () {
       });
   });
 
-  /*
   describe(".boolCapsuleToCircle", function () {
     it("exists", function () {
       chai.expect(collisionManager.boolCapsuleToCircle).to.be.a("function");
@@ -692,5 +691,4 @@ describe("collisionManager", function () {
       chai.expect(functionToThrow).to.throw(expectedErrorMessage);
     });
   });
-  /**/
 });

@@ -535,6 +535,14 @@ const collisionManager = (function () {
    * @returns {boolean} whether the capsule is overlapping with the circle.
    */
   function boolCapsuleToCircle(capsule, circle) {
+    if (!isCapsule(capsule) || !isCircle(circle)) {
+      throw "Exception in function 'boolCapsuleToCircle' - Invalid parameter";
+    }
+
+    const magnitude = capsule.radius + circle.radius;
+    const line = { start: capsule.points[0], end: capsule.points[1] };
+    const distance = getMinimumDistanceBetween(circle.position, line);
+    return !(magnitude < distance);
   };
 
   return {
